@@ -18,8 +18,6 @@ const generateAccessTokenAndRefreshToken = async ({ user }) => {
   const refreshToken = crypto.randomBytes(64).toString('hex') + '.' + Date.now().toString();
   const hashedRefreshToken = await bcrypt.hash(refreshToken, 10)
   
-  await tokenModel.invalidateAllRefreshTokensByUser({ user_id: user.user_id })
-
   await tokenModel.createRefreshToken({ user_id: user.user_id, refresh_token: hashedRefreshToken })
 
   return {

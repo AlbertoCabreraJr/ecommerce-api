@@ -16,8 +16,11 @@ const signup = async (req, res) => {
     const user = await userModel.createUser({ email, password: hashedPassword, name })
     const { accessToken, refreshToken } = await generateAccessTokenAndRefreshToken({ user })
 
-    res.setHeader('x-access-token', accessToken);
-    res.setHeader('x-refresh-token', refreshToken);
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
+    });
 
     return res.status(responseCodes.CREATED.status).json({ accessToken })
   } catch (error) {
@@ -43,8 +46,11 @@ const login = async (req, res) => {
     
     const { accessToken, refreshToken } = await generateAccessTokenAndRefreshToken({ user })
     
-    res.setHeader('x-access-token', accessToken);
-    res.setHeader('x-refresh-token', refreshToken);
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
+    });
 
     return res.status(responseCodes.OK.status).json({ accessToken })
   } catch (error) {
@@ -53,7 +59,23 @@ const login = async (req, res) => {
   }
 }
 
+const logout = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken || req.headers['x-refresh-token'];
+    if (refreshToken) {
+      await tokenModel.invalidateTokenFamily(refreshToken)
+      res.clearCookie('refreshToken', { path: '/' });
+    }
+
+    return res.sendStatus(responseCodes.OK.status)
+  } catch (error) {
+    console.error(error)
+    return res.status(responseCodes.INTERNAL_SERVER_ERROR.status).json({ code: responseCodes.INTERNAL_SERVER_ERROR.code })
+  }
+}
+
 module.exports = {
   signup,
-  login
+  login,
+  logout
 }

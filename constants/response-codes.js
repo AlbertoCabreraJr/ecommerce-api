@@ -25,6 +25,14 @@ module.exports = {
     code: 'INVALID_CREDENTIALS',
     status: 401,
   },
+  FORBIDDEN: {
+    code: 'FORBIDDEN',
+    status: 403,
+  },
+  UNAUTHORIZED: {
+    code: 'UNAUTHORIZED',
+    status: 401,
+  },
   USER_NOT_FOUND: {
     code: 'USER_NOT_FOUND',
     status: 404,
