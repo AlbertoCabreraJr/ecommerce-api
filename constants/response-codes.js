@@ -21,6 +21,14 @@ module.exports = {
     code: 'BAD_REQUEST',
     status: 400,
   },
+  INVALID_CREDENTIALS: {
+    code: 'INVALID_CREDENTIALS',
+    status: 401,
+  },
+  USER_NOT_FOUND: {
+    code: 'USER_NOT_FOUND',
+    status: 404,
+  },
   EMAIL_ALREADY_EXISTS: {
     code: 'EMAIL_ALREADY_EXISTS',
     status: 409,

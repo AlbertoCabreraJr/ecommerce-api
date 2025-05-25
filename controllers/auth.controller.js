@@ -16,12 +16,8 @@ const signup = async (req, res) => {
     const user = await userModel.createUser({ email, password: hashedPassword, name })
     const { accessToken, refreshToken } = await generateAccessTokenAndRefreshToken({ user })
 
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.ENVIRONMENT === "production",
-      sameSite: "Strict",
-      path: "/"
-    })
+    res.setHeader('x-access-token', accessToken);
+    res.setHeader('x-refresh-token', refreshToken);
 
     return res.status(responseCodes.CREATED.status).json({ accessToken })
   } catch (error) {
@@ -30,6 +26,34 @@ const signup = async (req, res) => {
   }
 }
 
+const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  try { 
+    const user = await userModel.getUserByEmail({ email });
+
+    if (!user) {
+      return res.status(responseCodes.USER_NOT_FOUND.status).json({ code: responseCodes.USER_NOT_FOUND.code })
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(responseCodes.INVALID_CREDENTIALS.status).json({ code: responseCodes.INVALID_CREDENTIALS.code })
+    }
+    
+    const { accessToken, refreshToken } = await generateAccessTokenAndRefreshToken({ user })
+    
+    res.setHeader('x-access-token', accessToken);
+    res.setHeader('x-refresh-token', refreshToken);
+
+    return res.status(responseCodes.OK.status).json({ accessToken })
+  } catch (error) {
+    console.error(error);
+    return res.status(responseCodes.INTERNAL_SERVER_ERROR.status).json({ code: responseCodes.INTERNAL_SERVER_ERROR.code })
+  }
+}
+
 module.exports = {
-  signup
+  signup,
+  login
 }

@@ -55,9 +55,23 @@ const invalidateRefreshTokenFamily = async ({ refreshToken }) => {
   await db.query(query, values)
 }
 
+const invalidateAllRefreshTokensByUser = async ({ user_id }) => {
+  const query = `
+    UPDATE refresh_tokens
+    SET used = TRUE
+    WHERE user_id = $1
+    AND used = FALSE
+  `
+
+  const values = [user_id]
+
+  await db.query(query, values)
+}
+
 module.exports = {
   createRefreshToken,
   findRefreshToken,
   markRefreshTokenUsed,
-  invalidateRefreshTokenFamily
+  invalidateRefreshTokenFamily,
+  invalidateAllRefreshTokensByUser
 }
