@@ -13,7 +13,13 @@ const port = process.env.PORT || 3000;
 
 app.use(helmet())
 app.use(cors());
-app.use(express.json());
+app.use((req, res, next) => {
+  if (req.originalUrl === '/api/orders/webhook') {
+    express.raw({ type: 'application/json' })(req, res, next)
+  } else {
+    express.json()(req, res, next)
+  }
+});
 app.use(morgan('dev'));
 app.use(cookieParser());
 

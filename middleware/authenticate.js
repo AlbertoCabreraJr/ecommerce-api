@@ -16,7 +16,6 @@ const authenticate = async (req, res, next) => {
     return next();
   } catch (err) {
     console.error(err)
-    console.log("err.name",err.name)
     if (err.name !== 'TokenExpiredError') {
       return res.status(responseCodes.UNAUTHORIZED.status).json({ code: responseCodes.UNAUTHORIZED.code })
     }
@@ -28,18 +27,23 @@ const authenticate = async (req, res, next) => {
   }
 
   const refreshTokenRecord = await tokenModel.findRefreshToken({ refreshToken });
-  if (!refreshTokenRecord || refreshTokenRecord.used) {
+  if (!refreshTokenRecord) {
     return res.status(responseCodes.FORBIDDEN.status).json({ code: responseCodes.FORBIDDEN.code })
   }
 
-  const user = await userModel.getUserById(refreshTokenRecord.user_id);
+  if (refreshTokenRecord.used) {
+    await tokenModel.invalidateRefreshTokenFamily({ refreshToken });
+    return res.status(responseCodes.FORBIDDEN.status).json({ code: responseCodes.FORBIDDEN.code })
+  }
+
+  const user = await userModel.getUserById({ user_id: refreshTokenRecord.user_id });
   if (!user || user.is_deleted) {
     return res.status(responseCodes.FORBIDDEN.status).json({ code: responseCodes.FORBIDDEN.code })
   }
 
   await tokenModel.markRefreshTokenUsed({ refreshToken });
 
-  const { accessToken: newAccessToken, refreshToken: newRefreshToken } = await generateAccessTokenAndRefreshToken({ user });
+  const { accessToken: newAccessToken, refreshToken: newRefreshToken } = await generateAccessTokenAndRefreshToken({ user, parentRefreshToken: refreshToken });
 
   res.setHeader('x-access-token', newAccessToken);
 

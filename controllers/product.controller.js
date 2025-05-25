@@ -41,6 +41,7 @@ const getProducts = async (req, res) => {
     return res.status(responseCodes.INTERNAL_SERVER_ERROR.status).json({ code: responseCodes.INTERNAL_SERVER_ERROR.code })
   }
 }
+
 module.exports = {
   createProduct,
   getProducts

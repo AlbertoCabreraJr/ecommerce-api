@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET;
 const JWT_ACCESS_EXPIRES_IN = process.env.JWT_ACCESS_EXPIRES_IN
 
-const generateAccessTokenAndRefreshToken = async ({ user }) => {
+const generateAccessTokenAndRefreshToken = async ({ user, parentRefreshToken = null }) => {
   const accessToken = jwt.sign(
     {
       user_id: user.user_id,
@@ -16,9 +16,8 @@ const generateAccessTokenAndRefreshToken = async ({ user }) => {
   );
 
   const refreshToken = crypto.randomBytes(64).toString('hex') + '.' + Date.now().toString();
-  const hashedRefreshToken = await bcrypt.hash(refreshToken, 10)
   
-  await tokenModel.createRefreshToken({ user_id: user.user_id, refresh_token: hashedRefreshToken })
+  await tokenModel.createRefreshToken({ user_id: user.user_id, refreshToken, parentRefreshToken })
 
   return {
     accessToken,

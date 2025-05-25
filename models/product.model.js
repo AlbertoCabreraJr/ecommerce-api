@@ -32,7 +32,21 @@ const getProducts = async ({ page = 1, limit = 10 }) => {
   return result.rows
 }
 
+const decreaseStock = async ({ product_id, quantity }) => {
+  const query = `
+    UPDATE products
+    SET stock = stock - $2
+    WHERE product_id = $1
+      AND stock >= $2
+    RETURNING *;
+  `;
+  const values = [product_id, quantity];
+  const result = await db.query(query, values);
+  return result.rows[0];
+};
+
 module.exports = {
   createProduct,
-  getProducts
+  getProducts,
+  decreaseStock
 }

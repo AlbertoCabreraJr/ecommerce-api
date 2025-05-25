@@ -81,7 +81,6 @@ const updateCartItemQuantity = async ({ cart_id, product_id, quantity }) => {
   const values = [cart_id, product_id, quantity]
 
   const result = await db.query(query, values)
-  console.log("result", result.rows)
 
   return result.rows[0]
 }
