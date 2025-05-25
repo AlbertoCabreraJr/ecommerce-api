@@ -1,6 +1,6 @@
 # E-commerce API
 
-A RESTful API for an e-commerce platform built with Node.js, Express, and PostgreSQL. This API provides endpoints for user authentication, product management, shopping cart operations, and order processing.
+A RESTful API for an e-commerce platform built with Node.js, Express, PostgreSQL, and Stripe. This API provides endpoints for user authentication, product management, shopping cart operations, and order processing.
 
 ## Features
 
