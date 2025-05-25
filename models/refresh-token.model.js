@@ -1,4 +1,5 @@
 const { db } = require('../config/db');
+const bcrypt = require('bcrypt')
 
 const createRefreshToken = async ({ user_id, refresh_token, parent_refresh_token = null }) => {
   const query = `
@@ -13,7 +14,8 @@ const createRefreshToken = async ({ user_id, refresh_token, parent_refresh_token
 }
 
 const findRefreshToken = async ({ refreshToken }) => {
-  const hashedRefreshToken = await bcrypt.hash(refreshToken, SALT_ROUNDS)
+  console.log("refreshToken", refreshToken)
+  const hashedRefreshToken = await bcrypt.hash(refreshToken, 10)
 
   const query = `
     SELECT * FROM refresh_tokens
@@ -27,7 +29,7 @@ const findRefreshToken = async ({ refreshToken }) => {
 }
 
 const markRefreshTokenUsed = async ({ refreshToken }) => {
-  const hashedRefreshToken = await bcrypt.hash(refreshToken, SALT_ROUNDS)
+  const hashedRefreshToken = await bcrypt.hash(refreshToken, 10)
   
   const query = `
     UPDATE refresh_tokens
@@ -40,7 +42,7 @@ const markRefreshTokenUsed = async ({ refreshToken }) => {
 }
 
 const invalidateRefreshTokenFamily = async ({ refreshToken }) => {
-  const hashedRefreshToken = await bcrypt.hash(refreshToken, SALT_ROUNDS)
+  const hashedRefreshToken = await bcrypt.hash(refreshToken, 10)
 
   const query = `
     UPDATE refresh_tokens

@@ -33,7 +33,7 @@ const addOrUpdateCartItem = async ({ cart_id, product_id, quantity }) => {
     INSERT INTO cart_items (cart_id, product_id, quantity)
     VALUES ($1, $2, $3)
     ON CONFLICT (cart_id, product_id)
-    DO UPDATE SET quantity = cart_items.quantity + EXCLUDED.quantity, is_deleted = FALSE, updated_at = NOW()
+    DO UPDATE SET quantity = $3, is_deleted = FALSE, updated_at = NOW()
     RETURNING *
   `
   const values = [cart_id, product_id, quantity]
@@ -60,7 +60,7 @@ const getCartItems = async ({ cart_id }) => {
 const removeCartItem = async ({ cart_id, product_id }) => {
   const query = `
     UPDATE cart_items
-    SET is_deleted = TRUE, update_at = NOW()
+    SET is_deleted = TRUE, updated_at = NOW()
     WHERE cart_id = $1 AND product_id = $2
     RETURNING *
   `
@@ -81,6 +81,7 @@ const updateCartItemQuantity = async ({ cart_id, product_id, quantity }) => {
   const values = [cart_id, product_id, quantity]
 
   const result = await db.query(query, values)
+  console.log("result", result.rows)
 
   return result.rows[0]
 }

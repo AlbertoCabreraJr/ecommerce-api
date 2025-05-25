@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
 const tokenModel = require('../models/refresh-token.model')
 const userModel = require('../models/user.model');
 const responseCodes = require('../constants/response-codes');
@@ -15,6 +16,7 @@ const authenticate = async (req, res, next) => {
     return next();
   } catch (err) {
     console.error(err)
+    console.log("err.name",err.name)
     if (err.name !== 'TokenExpiredError') {
       return res.status(responseCodes.UNAUTHORIZED.status).json({ code: responseCodes.UNAUTHORIZED.code })
     }
@@ -25,7 +27,7 @@ const authenticate = async (req, res, next) => {
     return res.status(responseCodes.UNAUTHORIZED.status).json({ code: responseCodes.UNAUTHORIZED.code })
   }
 
-  const refreshTokenRecord = await tokenModel.findRefreshToken(refreshToken);
+  const refreshTokenRecord = await tokenModel.findRefreshToken({ refreshToken });
   if (!refreshTokenRecord || refreshTokenRecord.used) {
     return res.status(responseCodes.FORBIDDEN.status).json({ code: responseCodes.FORBIDDEN.code })
   }
@@ -35,7 +37,7 @@ const authenticate = async (req, res, next) => {
     return res.status(responseCodes.FORBIDDEN.status).json({ code: responseCodes.FORBIDDEN.code })
   }
 
-  await tokenModel.markRefreshTokenUsed(refreshToken);
+  await tokenModel.markRefreshTokenUsed({ refreshToken });
 
   const { accessToken: newAccessToken, refreshToken: newRefreshToken } = await generateAccessTokenAndRefreshToken({ user });
 

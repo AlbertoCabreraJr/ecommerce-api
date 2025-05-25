@@ -49,6 +49,11 @@ const removeItemFromCart = async (req, res) => {
     }
 
     const removed = await cartModel.removeCartItem({ cart_id: cart.cart_id, product_id })
+
+    if (!removed) {
+      return res.status(responseCodes.NOT_FOUND.status).json({ code: responseCodes.NOT_FOUND.code })
+    }
+
     return res.status(responseCodes.OK.status).json({ removed })
   } catch (error) {
     console.error(error)
@@ -67,6 +72,11 @@ const updateItemQuantity = async (req, res) => {
     }
 
     const updated = await cartModel.updateCartItemQuantity({ cart_id: cart.cart_id, product_id, quantity })
+
+    if (!updated) {
+      return res.status(responseCodes.NOT_FOUND.status).json({ code: responseCodes.NOT_FOUND.code })
+    }
+
     return res.status(responseCodes.OK.status).json({ updated })
   } catch (error) {
     console.error(error)

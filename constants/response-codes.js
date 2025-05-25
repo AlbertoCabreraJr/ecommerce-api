@@ -33,8 +33,8 @@ module.exports = {
     code: 'UNAUTHORIZED',
     status: 401,
   },
-  USER_NOT_FOUND: {
-    code: 'USER_NOT_FOUND',
+  NOT_FOUND: {
+    code: 'NOT_FOUND',
     status: 404,
   },
   EMAIL_ALREADY_EXISTS: {
